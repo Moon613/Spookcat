@@ -1,0 +1,9 @@
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.csproj.AssemblyReference.cache
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.AssemblyInfoInputs.cache
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.AssemblyInfo.cs
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.csproj.CoreCompileInputs.cache
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\bin\Debug\net48\Spookcat.dll
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\bin\Debug\net48\Spookcat.pdb
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.dll
+C:\Users\willz\Desktop\RainWorldRemix\Spookcat\obj\Debug\net48\Spookcat.pdb

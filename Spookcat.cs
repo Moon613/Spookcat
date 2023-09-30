@@ -33,13 +33,11 @@ class Spookcat : BaseUnityPlugin
         SpookyCat.Apply();
         ScareEverything.Apply();
         On.HardmodeStart.Update += HardmodeStart_Update;    // Will become unneeded once it is it's own Slugbase scug
-        // On.MiniFly.ViableForBuzzaround += MiniFly_ViableForBuzzaround;
         IL.MiniFly.ViableForBuzzaround += IL_MiniFly_ViableForBuzzaround;
         On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
-        On.SlugcatStats.SlugcatFoodMeter += SlugcatStats_SlugcatFoodMeter;
         On.HUD.FoodMeter.UpdateShowCount += FoodMeter_UpdateShowCount;
         IL.Room.Loaded += IL_Room_Loaded;
-        // On.Room.Loaded += Room_Loaded;
+        IL.WormGrass.WormGrassPatch.Update += IL_WormGrass_WormGrassPatch_Update;
     }
     static void HardmodeStart_Update(On.HardmodeStart.orig_Update orig, HardmodeStart self, bool eu) {
 		if (self.room.game.cameras[0].hud != null && self.room.game.cameras[0].hud.textPrompt != null && self.room.game.cameras[0].hud.textPrompt.subregionTracker != null)
@@ -162,10 +160,6 @@ class Spookcat : BaseUnityPlugin
     static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref Texture2D texture) {
         orig(self, 56, ref texture);
     }
-    // Can also check for worldstate, but I am pretty sure th1s is also just a slugbase Feature now.
-    static IntVector2 SlugcatStats_SlugcatFoodMeter(On.SlugcatStats.orig_SlugcatFoodMeter orig, SlugcatStats.Name slugcat) {
-        return new IntVector2(3, 3);
-    }
     // Also needs to be converted into an IL Hook
     static void FoodMeter_UpdateShowCount(On.HUD.FoodMeter.orig_UpdateShowCount orig, FoodMeter self) {
         if (self.showCount < self.hud.owner.CurrentFood)
@@ -191,7 +185,7 @@ class Spookcat : BaseUnityPlugin
         {
             if (self.eatCircleDelay == 0)
             {
-                self.eatCircleDelay = 20;   // self is what was changed, from 40 -> 20. Might just be a 1.5 -> 1.9 game thing really.
+                self.eatCircleDelay = 20;   // This is what was changed, from 40 -> 20. Might just be a 1.5 -> 1.9 game thing really.
             }
             self.eatCircleDelay--;
             if (self.eatCircleDelay < 1)
@@ -227,7 +221,7 @@ class Spookcat : BaseUnityPlugin
                     self.AddObject(self.insectCoordinator);
                 }
                 self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.Flies, 1.1f, false));
-                self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.FireFlies, 1f, false));
+                // self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.FireFlies, 1f, false));
                 self.roomSettings.placedObjects.RemoveAll(i => i.type == PlacedObject.Type.Rainbow);
                 // Meh just add the sounds in here, it Just Works
                 self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("AM_RAIN-Rumbles.ogg", false)
@@ -250,28 +244,27 @@ class Spookcat : BaseUnityPlugin
             Debug.Log($"Spookcat: Error Applying IL Hook\n{err}");
         }
     }
-    static void Room_Loaded(On.Room.orig_Loaded orig, Room self) {
-        orig(self);
-        if (self.lightning == null)
-        {
-            self.lightning = new Lightning(self, 1f, true);
-            self.AddObject(self.lightning);
+    static void IL_WormGrass_WormGrassPatch_Update(ILContext il) {
+        var cursor = new ILCursor(il);
+        var label = cursor.DefineLabel();
+
+        if (!cursor.TryGotoNext(MoveType.After, i => i.MatchStloc(out _))) {
+            return;
         }
-        if (self.insectCoordinator == null)
-        {
-            self.insectCoordinator = new InsectCoordinator(self);
-            self.AddObject(self.insectCoordinator);
+        cursor.Emit(OpCodes.Ldloc, 0);
+        cursor.EmitDelegate((Creature crit) => {
+            if (crit is Player player && SpookyCWT.TryGetValue(player, out var _)) {
+                return true;
+            }
+            return false;
+        });
+        cursor.Emit(OpCodes.Brtrue, label);
+        
+        if (!cursor.TryGotoNext(MoveType.After, i => i.MatchNewobj(out _), i => i.MatchCallOrCallvirt(out _))) {
+            return;
         }
-        self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.Flies, 1f, false));
-        self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.RockFlea, 1f, false));
-        self.roomSettings.placedObjects.RemoveAll(i => i.type == PlacedObject.Type.Rainbow);
+        cursor.MarkLabel(label);
     }
-    // Removes the malnourished check, should be redone as an IL Hook, maybe. Or perhaps trust no other mod expects to be hooking self, tho Vestiges might.
-    static bool MiniFly_ViableForBuzzaround(On.MiniFly.orig_ViableForBuzzaround orig, MiniFly self, AbstractCreature crit) {
-		return crit.realizedCreature != null && Random.value > 0.00083333335f && (crit.state.dead || (crit.realizedCreature is Player p /*&& p.Malnourished*/) || (ModManager.MSC && crit.realizedCreature is DaddyLongLegs dll && dll.isHD)) && (self.mySwarm == null || Custom.DistLess(self.mySwarm.placedObject.pos, self.mySwarm.placedObject.pos, self.mySwarm.insectGroupData.Rad * (1f + Random.value))) && !crit.realizedCreature.slatedForDeletetion && crit.realizedCreature.room == self.room && !crit.creatureTemplate.smallCreature;
-        return orig(self, crit);
-    }
-    
 }
 public class SpookcatEx
 {

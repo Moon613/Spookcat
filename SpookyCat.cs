@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RWCustom;
 using static Spookcat.Spookcat;
 using Debug = UnityEngine.Debug;
@@ -12,8 +13,8 @@ class SpookyCat
         On.Player.AddFood += Player_AddFood;
         On.Player.MovementUpdate += Player_MovementUpdate;
         On.Player.SpitOutOfShortCut += Player_SpitOutOfShortCut;
-        On.Player.Stun += Player_Stun;
-        On.Creature.LoseAllGrasps += Creature_LoseAllGrasps;
+        IL.Player.Stun += IL_Player_Stun;
+        IL.Creature.LoseAllGrasps += IL_Creature_LoseAllGrasps;
         On.Player.Update += Player_Update;
     }
     static void Player_Die(On.Player.orig_Die orig, Player self) {
@@ -45,13 +46,11 @@ class SpookyCat
         }
     }
     static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world) {
-        Debug.Log($"SpookCat: StaticWorld Template: {StaticWorld.creatureTemplates[1].type}");
         orig(self, abstractCreature, world);
         if (!SpookyCWT.TryGetValue(self, out SpookcatEx _)) {
             SpookyCWT.Add(self, new SpookcatEx());
         }
         if (SpookyCWT.TryGetValue(self, out var spookcatEx)) {
-            self.abstractCreature.creatureTemplate.wormGrassImmune = true;  // This could be done with a shrimple IL to the two places this is used instead of modifying the template.
             if (self.slugcatStats != null)
             {
                 self.slugcatStats.poleClimbSpeedFac = 2f;
@@ -116,18 +115,39 @@ class SpookyCat
             spookcatEx.graphics.ResetRag((PlayerGraphics)self.graphicsModule);
         }
     }
-    // These two can be made better, into ILHooks at the very start of the method
-    static void Player_Stun(On.Player.orig_Stun orig, Player self, int st) {
-        if (!SpookyCWT.TryGetValue(self, out var _)) {
-            orig(self, st);
-        }
-    }
-    // These two can be made better, into ILHooks at the very start of the method
-    static void Creature_LoseAllGrasps(On.Creature.orig_LoseAllGrasps orig, Creature self) {
-        if (self is Player player && SpookyCWT.TryGetValue(player, out var _)) {
+    static void IL_Player_Stun(ILContext il) {
+        var cursor = new ILCursor(il);
+        var label = cursor.DefineLabel();
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate((Player self) => {
+            if (SpookyCWT.TryGetValue(self, out var _)) {
+                return true;
+            }
+            return false;
+        });
+        cursor.Emit(OpCodes.Brtrue, label);
+        if (!cursor.TryGotoNext(MoveType.Before, i => i.MatchRet())) {
+            Logger.LogDebug("Spookcat match ret fail! Stun.");
             return;
         }
-        orig(self);
+        cursor.MarkLabel(label);
+    }
+    static void IL_Creature_LoseAllGrasps(ILContext il) {
+        var cursor = new ILCursor(il);
+        var label = cursor.DefineLabel();
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate((Creature self) => {
+            if (self is Player player && SpookyCWT.TryGetValue(player, out var _)) {
+                return true;
+            }
+            return false;
+        });
+        cursor.Emit(OpCodes.Brtrue, label);
+        if (!cursor.TryGotoNext(MoveType.Before, i => i.MatchRet())) {
+            Logger.LogDebug("Spookcat match ret fail! Grasps.");
+            return;
+        }
+        cursor.MarkLabel(label);
     }
     static void Player_Update(On.Player.orig_Update orig, Player self, bool eu) {
         if (SpookyCWT.TryGetValue(self, out var spookcatEx)) {
@@ -138,5 +158,4 @@ class SpookyCat
         }
         orig(self, eu);
     }
-    
 }

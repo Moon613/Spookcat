@@ -1,1 +1,4 @@
 obj/
+bin/
+bin/Debug/net48/Spookcat.dll
+bin/Debug/net48/Spookcat.pdb

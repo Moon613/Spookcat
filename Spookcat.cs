@@ -24,6 +24,7 @@ class Spookcat : BaseUnityPlugin
 {
     [AllowNull] new internal static ManualLogSource Logger;
     public static ConditionalWeakTable<Player, SpookcatEx> SpookyCWT = new ConditionalWeakTable<Player, SpookcatEx>();
+    public static SlugcatStats.Name SpookyName = new SlugcatStats.Name("spooky");
     public Spookcat() {
         Logger = base.Logger;
     }
@@ -31,109 +32,12 @@ class Spookcat : BaseUnityPlugin
     {
         SpookyGraphics.Apply();
         SpookyCat.Apply();
-        ScareEverything.Apply();
-        On.HardmodeStart.Update += HardmodeStart_Update;    // Will become unneeded once it is it's own Slugbase scug
+        ScareEverything.Apply();    // Makes everything scared of Spookcat, which I think was part of the original intention of changing the Slugcat's template?
         IL.MiniFly.ViableForBuzzaround += IL_MiniFly_ViableForBuzzaround;
         On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
         On.HUD.FoodMeter.UpdateShowCount += FoodMeter_UpdateShowCount;
         IL.Room.Loaded += IL_Room_Loaded;
         IL.WormGrass.WormGrassPatch.Update += IL_WormGrass_WormGrassPatch_Update;
-    }
-    static void HardmodeStart_Update(On.HardmodeStart.orig_Update orig, HardmodeStart self, bool eu) {
-		if (self.room.game.cameras[0].hud != null && self.room.game.cameras[0].hud.textPrompt != null && self.room.game.cameras[0].hud.textPrompt.subregionTracker != null)
-		{
-            // self if statement is also new. Put right before orig.
-			self.room.game.cameras[0].hud.textPrompt.subregionTracker.counter = 0;
-		}
-		Player? player = self.room.game.Players[0].realizedCreature as Player;
-        if (player != null && !SpookyCWT.TryGetValue(player, out SpookcatEx _)) {
-            orig(self, eu);
-            return;
-        }
-		if (self.phase == HardmodeStart.Phase.Init) {
-			if (self.room.game.cameras[0].room == self.room)
-			{
-				if (self.room.game.cameras[0].currentCameraPosition == 7)
-				{
-					self.camPosCorrect = true;
-				}
-				else
-				{
-					self.room.game.cameras[0].MoveCamera(7);
-				}
-			}
-			if (!self.mapAdded && self.camPosCorrect && player != null)
-			{
-				if (self.room.game.cameras[0].hud == null)
-				{
-					self.room.game.cameras[0].FireUpSinglePlayerHUD(player);
-				}
-				else if (self.room.game.cameras[0].hud.map != null && self.room.game.cameras[0].hud.map.discLoaded)
-				{
-					self.room.game.cameras[0].hud.map.AddDiscoveryTexture(Resources.Load("Illustrations/redsJourney") as Texture2D);
-					self.mapAdded = true;
-					self.room.game.cameras[0].hud.foodMeter.NewShowCount(player.FoodInStomach);
-					self.room.game.cameras[0].hud.foodMeter.visibleCounter = 0;
-					self.room.game.cameras[0].hud.foodMeter.fade = 0f;
-					self.room.game.cameras[0].hud.foodMeter.lastFade = 0f;
-				}
-			}
-			if (player != null)
-			{
-				if (!self.playerPosCorrect)
-				{
-					player.SuperHardSetPosition(self.room.MiddleOfTile(350, 13));
-					self.playerPosCorrect = true;
-					if (player.graphicsModule != null)
-					{
-						player.graphicsModule.Reset();
-					}
-					self.startController = new HardmodeStart.StartController(new HardmodeStart.HardmodePlayer(self, 0));
-					player.controller = self.startController;
-					player.standing = true;
-					player.playerState.foodInStomach = 2;   // self is changed from base game: 5 -> 2. Easy IL Hook.
-					player.objectInStomach = new DataPearl.AbstractDataPearl(self.room.world, AbstractPhysicalObject.AbstractObjectType.DataPearl, null, new WorldCoordinate(self.room.abstractRoom.index, -1, -1, 0), self.room.game.GetNewID(), -1, -1, null, DataPearl.AbstractDataPearl.DataPearlType.Red_stomach);
-				}
-				if (self.nshSwarmer != null && self.nshSwarmer.realizedObject != null)
-				{
-					self.nshSwarmer.realizedObject.firstChunk.HardSetPosition(player.mainBodyChunk.pos + new Vector2(-30f, 0f));
-					player.SlugcatGrab(self.nshSwarmer.realizedObject, 0);
-					self.nshSwarmer = null;
-				}
-				if (self.spear != null && self.spear.realizedObject != null)
-				{
-					if (player.spearOnBack != null)
-					{
-						self.spear.realizedObject.firstChunk.HardSetPosition(player.mainBodyChunk.pos + new Vector2(-30f, 0f));
-						player.spearOnBack.SpearToBack(self.spear.realizedObject as Spear);
-					}
-					self.spear = null;
-				}
-			}
-			if (self.camPosCorrect && self.playerPosCorrect && self.nshSwarmer == null && self.spear == null && self.mapAdded)
-			{
-				self.phase = HardmodeStart.Phase.PlayerRun;
-				return;
-			}
-		}
-		if (self.phase == HardmodeStart.Phase.PlayerRun) {
-            foreach (var hardPlayer in self.hardmodePlayers){
-			hardPlayer.playerMovGiveUpCounter++;
-                if (hardPlayer.playerAction > 8 || hardPlayer.playerMovGiveUpCounter > 400)
-                {
-                    self.phase = HardmodeStart.Phase.End;
-                    return;
-                }
-            }
-		}
-		if (self.phase == HardmodeStart.Phase.End) {
-			if (player != null)
-			{
-				player.controller = null;
-				self.room.game.cameras[0].followAbstractCreature = player.abstractCreature;
-			}
-			self.Destroy();
-		}
     }
     static void IL_MiniFly_ViableForBuzzaround(ILContext il) {
         var cursor = new ILCursor(il);
@@ -156,9 +60,8 @@ class Spookcat : BaseUnityPlugin
         }
         cursor.MarkLabel(label);
     }
-    // Make it check for worldState, once updated to SlugBase
     static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref Texture2D texture) {
-        orig(self, 56, ref texture);
+        orig(self, (self.game?.session is StoryGameSession session && session.saveStateNumber == SpookyName)? 56 : pal, ref texture);
     }
     // Also needs to be converted into an IL Hook
     static void FoodMeter_UpdateShowCount(On.HUD.FoodMeter.orig_UpdateShowCount orig, FoodMeter self) {
@@ -210,35 +113,37 @@ class Spookcat : BaseUnityPlugin
         try {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate((Room self) => {
-                if (self.lightning == null)
-                {
-                    self.lightning = new Lightning(self, 1f, true);
-                    self.AddObject(self.lightning);
+                if (self.game.session is StoryGameSession session && session.saveStateNumber == SpookyName) {
+                    if (self.lightning == null)
+                    {
+                        self.lightning = new Lightning(self, 1f, true);
+                        self.AddObject(self.lightning);
+                    }
+                    if (self.insectCoordinator == null)
+                    {
+                        self.insectCoordinator = new InsectCoordinator(self);
+                        self.AddObject(self.insectCoordinator);
+                    }
+                    self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.Flies, 1.1f, false));
+                    // self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.FireFlies, 1f, false));
+                    self.roomSettings.placedObjects.RemoveAll(i => i.type == PlacedObject.Type.Rainbow);
+                    // Meh just add the sounds in here, it Just Works
+                    self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("AM_RAIN-Rumbles.ogg", false)
+                    {
+                        volume=0.4f,
+                        pitch=0.9f
+                    });
+                    self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("SO_WAT-RainishDrips.ogg", false)
+                    {
+                        volume=0.4f,
+                        pitch=0.9f
+                    });
+                    self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("AM_ENV-NatWind.ogg", false)
+                    {
+                        volume=0.4f,
+                        pitch=0.9f
+                    });
                 }
-                if (self.insectCoordinator == null)
-                {
-                    self.insectCoordinator = new InsectCoordinator(self);
-                    self.AddObject(self.insectCoordinator);
-                }
-                self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.Flies, 1.1f, false));
-                // self.insectCoordinator.AddEffect(new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.FireFlies, 1f, false));
-                self.roomSettings.placedObjects.RemoveAll(i => i.type == PlacedObject.Type.Rainbow);
-                // Meh just add the sounds in here, it Just Works
-                self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("AM_RAIN-Rumbles.ogg", false)
-                {
-                    volume=0.4f,
-                    pitch=0.9f
-                });
-                self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("SO_WAT-RainishDrips.ogg", false)
-                {
-                    volume=0.4f,
-                    pitch=0.9f
-                });
-                self.roomSettings.ambientSounds.Add(new OmniDirectionalSound("AM_ENV-NatWind.ogg", false)
-                {
-                    volume=0.4f,
-                    pitch=0.9f
-                });
             });
         } catch (Exception err) {
             Debug.Log($"Spookcat: Error Applying IL Hook\n{err}");

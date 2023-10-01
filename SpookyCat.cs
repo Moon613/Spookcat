@@ -47,7 +47,7 @@ class SpookyCat
     }
     static void Player_ctor(On.Player.orig_ctor orig, Player self, AbstractCreature abstractCreature, World world) {
         orig(self, abstractCreature, world);
-        if (!SpookyCWT.TryGetValue(self, out SpookcatEx _)) {
+        if (self.slugcatStats.name == SpookyName && !SpookyCWT.TryGetValue(self, out SpookcatEx _)) {
             SpookyCWT.Add(self, new SpookcatEx());
         }
         if (SpookyCWT.TryGetValue(self, out var spookcatEx)) {

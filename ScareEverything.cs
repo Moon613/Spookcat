@@ -4,7 +4,7 @@ public class ScareEverything {
     public static float intensity = 0.9f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all
     ///<summary>This function makes setting the condition under which creatures will change their relation easier</summary>
     public static bool Condition(Creature? crit) {
-        if (crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat /*&& crit is Player player && player.slugcatStats.name.value == "white"*/) {
+        if (crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
             return true;
         }
         else {

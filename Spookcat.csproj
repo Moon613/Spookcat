@@ -3,7 +3,6 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <!-- <PathMap>$(MSBuildProjectDirectory)=/RainWorldMods/LolYouWishYouKnewTheNameOfThisMod</PathMap> -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>False</Optimize>
@@ -11,7 +10,9 @@
     <Prefer32bit>false</Prefer32bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>True</Optimize>
+    <Optimize>False</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <Prefer32bit>false</Prefer32bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="UnityEngine.AssetBundleModule">

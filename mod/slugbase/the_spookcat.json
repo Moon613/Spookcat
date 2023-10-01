@@ -1,0 +1,20 @@
+{
+	"id": "spooky",
+	"name": "The Spookcat",
+	"description": "Braaaiiiinzzzz",
+	"features": {
+		"color": "334f17",
+		"custom_colors": [
+			{"name": "Body", "story": "334f17", "arena": ["334f17", "9f2620", "070710", "654954"]},
+			{"name": "Eyes", "story": "a41e1f", "arena": ["a41e1f", "a77751", "1f2436", "271e2c"]}
+		],
+		"start_room": ["LF_B01"],
+		"diet": {
+			"base": "Red",
+		},
+		"back_spear": true,
+		"food_min": 3,
+		"food_max": 3,
+		"world_state": ["Red"],
+	}
+}

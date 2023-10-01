@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "authors": "Original Authors: Garrakx, Cappin\nPorting: Moon",
   "description": "A Zombified slugcat that transforms the world into a dark and haunting nightmarescape.\nTurns your food meter into a health bar.",
-  "requirements": [],
-  "requirements_names": [],
+	"requirements": ["slime-cubed.slugbase"],
+	"requirements_names": ["Slugbase"],
   "checksum_override_version": true
 }

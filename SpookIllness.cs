@@ -6,10 +6,9 @@ namespace Spookcat;
 // This is basically a copy-paste of RedsIllness, but with a few changes. Would probably be easier to keep like this, instead of inheriting.
 public class SpookIllness
 {
-	public SpookIllness(Player player, int cycle)
+	public SpookIllness(Player player)
 	{
 		this.player = player;
-		this.cycle = cycle;
 	}
 	public float Severity
 	{
@@ -31,11 +30,10 @@ public class SpookIllness
 		{
 			return;
 		}
-		if (!init)
-		{
-			init = true;
+		// if (!init) {
+		// 	init = true;
 			// Change here, doesn't set the player to be malnourished
-		}
+		// }
 		counter++;
 		if (fit > 0f)
 		{
@@ -73,7 +71,7 @@ public class SpookIllness
 	{
 		get
 		{
-			return 1f - 0.9f * Mathf.Max(Mathf.Max((!fadeOutSlow) ? 0f : Mathf.Pow(Mathf.InverseLerp(0f, 0.5f, player.abstractCreature.world.game.manager.fadeToBlack), 0.65f), Mathf.InverseLerp(40f * Mathf.Lerp(12f, 21f, Severity), 40f, (float)counter) * Mathf.Lerp(0.2f, 0.5f, Severity)), CurrentFitIntensity * 0.5f);
+			return 1f - 0.9f * Mathf.Max(Mathf.Max(0f, Mathf.InverseLerp(40f * Mathf.Lerp(12f, 21f, Severity), 40f, (float)counter) * Mathf.Lerp(0.2f, 0.5f, Severity)), CurrentFitIntensity * 0.5f);
 		}
 	}
 	public void AbortFit()
@@ -81,10 +79,8 @@ public class SpookIllness
 		fit = 0f;
 	}
 	public Player player;
-	public int cycle;
-	public bool init;
+	// public bool init;
 	public int counter;
-	public bool fadeOutSlow;
 	private bool curedTemporal;
 	public SpookIllnessEffect? effect;
 	public float fit;
@@ -99,7 +95,7 @@ public class SpookIllness
 			rotDir = ((Random.value >= 0.5f) ? 1f : -1f);
 		}
 		// Completely Changed from original
-		public float TotFade(float timeStacker)
+		public float Intensity()
 		{
             // Might potentially Error, if this causes problems then look here.
             Spookcat.SpookyCWT.TryGetValue(illness.player, out SpookcatEx spookcatEx);
@@ -174,14 +170,13 @@ public class SpookIllness
 		{
 			base.InitiateSprites(sLeaser, rCam);
 			sLeaser.sprites = new FSprite[1];
-			sLeaser.sprites[0] = new FSprite("Futile_White", true);
-			sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["RedsIllness"];
-			AddToContainer(sLeaser, rCam, rCam.ReturnFContainer("GrabShaders"));
+            sLeaser.sprites[0] = new FSprite("Futile_White", true){ shader = rCam.game.rainWorld.Shaders["RedsIllness"] };
+            AddToContainer(sLeaser, rCam, rCam.ReturnFContainer("GrabShaders"));
 		}
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
-			float num = TotFade(timeStacker);
+			float num = Intensity();
 			if (num == 0f)
 			{
 				sLeaser.sprites[0].isVisible = false;

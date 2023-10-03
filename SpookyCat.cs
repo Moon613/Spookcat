@@ -60,7 +60,7 @@ class SpookyCat
             self.redsIllness = null;
             if (!self.playerState.isGhost)
             {
-                spookcatEx.spookIllness = new SpookIllness(self, 17);
+                spookcatEx.spookIllness = new SpookIllness(self);
             }
         }
     }

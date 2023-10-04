@@ -1,7 +1,7 @@
 using static Spookcat.Spookcat;
 public class ScareEverything {
     public static CreatureTemplate.Relationship.Type newRelation = CreatureTemplate.Relationship.Type.Afraid;   // there are a few different relationship values you can use here
-    public static float intensity = 0.9f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all
+    public static float intensity = 0.5f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all
     ///<summary>This function makes setting the condition under which creatures will change their relation easier</summary>
     public static bool Condition(Creature? crit) {
         if (crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
@@ -31,13 +31,6 @@ public class ScareEverything {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, otherCreature);
-        };
-
-        On.PoleMimic.ChunkTastyness_BodyChunk += (orig, self, chunk) => {
-            if (chunk != null && chunk.owner is Player player && SpookyCWT.TryGetValue(player, out var _)) {
-                return -99f;
-            }
-            return orig(self, chunk);
         };
 
         // from here down, it is all maunally returning a new relationship for specific creature's AI dynamic relationship hook. Some return values before asking the functions above and there is no universal hook to use, so this unfortunatly is needed.

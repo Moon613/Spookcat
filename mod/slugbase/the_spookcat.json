@@ -8,6 +8,8 @@
 			{"name": "Body", "story": "334f17", "arena": ["334f17", "9f2620", "070710", "654954"]},
 			{"name": "Eyes", "story": "a41e1f", "arena": ["a41e1f", "a77751", "1f2436", "271e2c"]}
 		],
+		"select_menu_scene": "spookslug",
+		"sleep_scene": "spooksleep",
 		"start_room": ["LF_B01"],
 		"diet": {
 			"base": "Red",

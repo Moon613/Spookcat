@@ -3,8 +3,8 @@ public class ScareEverything {
     public static CreatureTemplate.Relationship.Type newRelation = CreatureTemplate.Relationship.Type.Afraid;   // there are a few different relationship values you can use here
     public static float intensity = 0.5f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all
     ///<summary>This function makes setting the condition under which creatures will change their relation easier</summary>
-    public static bool Condition(Creature? crit) {
-        if (crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
+    public static bool Condition(Creature? crit, ArtificialIntelligence self) {
+        if (self.creature.personality.aggression < 0.75f && self.creature.personality.energy < 0.95f && self.creature.personality.bravery < 0.8f && self.creature.personality.dominance < 0.98f && crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
             return true;
         }
         else {
@@ -20,14 +20,14 @@ public class ScareEverything {
             else if (absCrit != null) {
                 trackedCreature = absCrit.realizedCreature;
             }
-            if (Condition(trackedCreature)) {    // if a creature tries to access it's dynamic relationship, return a new one instead if consitions are met
+            if (Condition(trackedCreature, self)) {    // if a creature tries to access it's dynamic relationship, return a new one instead if consitions are met
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, rep, absCrit);
         };
 
         On.ArtificialIntelligence.StaticRelationship += (orig, self, otherCreature) => {
-            if (otherCreature.realizedCreature != null && Condition(otherCreature.realizedCreature)) {    // if a creature skips calling DynamicRelationship in favor of using a Static one, catch it here and make sure to still return a new relationship
+            if (otherCreature.realizedCreature != null && Condition(otherCreature.realizedCreature, self)) {    // if a creature skips calling DynamicRelationship in favor of using a Static one, catch it here and make sure to still return a new relationship
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, otherCreature);
@@ -42,7 +42,7 @@ public class ScareEverything {
 
         On.BigEelAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -50,7 +50,7 @@ public class ScareEverything {
 
         On.BigNeedleWormAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -58,7 +58,7 @@ public class ScareEverything {
 
         On.BigSpiderAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -66,7 +66,7 @@ public class ScareEverything {
 
         On.CentipedeAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -74,7 +74,7 @@ public class ScareEverything {
 
         On.CicadaAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -82,7 +82,7 @@ public class ScareEverything {
 
         On.DaddyAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -90,7 +90,7 @@ public class ScareEverything {
 
         On.DeerAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -98,7 +98,7 @@ public class ScareEverything {
 
         On.DropBugAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -106,7 +106,7 @@ public class ScareEverything {
 
         On.EggBugAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -114,7 +114,7 @@ public class ScareEverything {
 
         On.JetFishAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -122,7 +122,7 @@ public class ScareEverything {
 
         On.LizardAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -130,7 +130,7 @@ public class ScareEverything {
 
         On.MirosBirdAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -138,7 +138,7 @@ public class ScareEverything {
 
         On.ScavengerAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -146,7 +146,7 @@ public class ScareEverything {
 
         On.TempleGuardAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -154,7 +154,7 @@ public class ScareEverything {
 
         On.TentaclePlantAI.UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -162,7 +162,7 @@ public class ScareEverything {
 
         On.VultureAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -170,7 +170,7 @@ public class ScareEverything {
 
         On.MoreSlugcats.InspectorAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -178,7 +178,7 @@ public class ScareEverything {
 
         On.MoreSlugcats.SlugNPCAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -186,7 +186,7 @@ public class ScareEverything {
 
         On.MoreSlugcats.StowawayBugAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);
@@ -194,7 +194,7 @@ public class ScareEverything {
 
         On.MoreSlugcats.YeekAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature)) {
+            if (Condition(trackedCreature, self)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);

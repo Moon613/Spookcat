@@ -11,6 +11,7 @@ using HUD;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using BepInEx.Logging;
+using Menu;
 
 #pragma warning disable CS0618
 [module: UnverifiableCode]
@@ -24,7 +25,9 @@ class Spookcat : BaseUnityPlugin
 {
     [AllowNull] new internal static ManualLogSource Logger;
     public static ConditionalWeakTable<Player, SpookcatEx> SpookyCWT = new ConditionalWeakTable<Player, SpookcatEx>();
+    public static ConditionalWeakTable<MenuScene, MenuSceneEx> MenuCWT = new ConditionalWeakTable<MenuScene, MenuSceneEx>();
     public static SlugcatStats.Name SpookyName = new SlugcatStats.Name("spooky");
+    static readonly MenuScene.SceneID MENUSCENENAME = new("spookslug");
     public Spookcat() {
         Logger = base.Logger;
     }
@@ -38,6 +41,33 @@ class Spookcat : BaseUnityPlugin
         On.HUD.FoodMeter.UpdateShowCount += FoodMeter_UpdateShowCount;
         IL.Room.Loaded += IL_Room_Loaded;
         IL.WormGrass.WormGrassPatch.Update += IL_WormGrass_WormGrassPatch_Update;
+        On.Menu.MenuScene.Update += Menu_MenuScene_Update;
+        On.Menu.MenuScene.ctor += Menu_MenuScene_ctor;
+    }
+    static void Menu_MenuScene_ctor(On.Menu.MenuScene.orig_ctor orig, MenuScene self, Menu.Menu menu, MenuObject owner, MenuScene.SceneID sceneID) {
+        orig(self, menu, owner, sceneID);
+        if (!MenuCWT.TryGetValue(self, out var _) && sceneID == MENUSCENENAME) {
+            MenuCWT.Add(self, new());
+        }
+    }
+    static void Menu_MenuScene_Update(On.Menu.MenuScene.orig_Update orig, MenuScene self) {
+        orig(self);
+        if (!MenuCWT.TryGetValue(self, out var menuEx) && !self.depthIllustrations.Exists(i => i.fileName.Contains("bkg5")))
+        {
+            return;
+        }
+        menuEx.timer++;
+        menuEx.soundCooldown--;
+        if (self.menu is SlugcatSelectMenu menu) {
+            int index = self.depthIllustrations.FindIndex(i => i.fileName.Contains("bkg5"));
+            if (index < 0) { return; }
+            float green = Mathf.Max(-0.1f,  1f - (2 * Mathf.Abs( Mathf.Sin( 2f * Mathf.PI * Mathf.Cos( ( menuEx.timer + 4 * Mathf.Sin(1.25f * menuEx.timer)) / 128f)) )));
+            self.depthIllustrations[index].sprite.color = new Color(green/8f, green, 0f, 1f);
+            if (green >= 0.99f && menuEx.soundCooldown <= 0 && menu.slugcatPages.FindIndex(page => page.slugcatNumber == SpookyName) == menu.slugcatPageIndex) {
+                self.menu.PlaySound(SoundID.Thunder_Close, 0f, 0.7f, 0.7f);
+                menuEx.soundCooldown = 40;
+            }
+        }
     }
     static void IL_MiniFly_ViableForBuzzaround(ILContext il) {
         var cursor = new ILCursor(il);
@@ -171,6 +201,11 @@ class Spookcat : BaseUnityPlugin
         cursor.MarkLabel(label);
     }
 }
+class MenuSceneEx
+{
+    public int timer;
+    public int soundCooldown;
+}
 public class SpookcatEx
 {
     internal float hurtLevel;
@@ -207,6 +242,5 @@ public class SpookcatEx
         [AllowNull] public Vector2[,] rag;
         public Vector2 rotation;
         public int ragSpriteIndex;
-        public int hipsSpriteIndex;
     }
 }

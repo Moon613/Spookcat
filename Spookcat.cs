@@ -38,11 +38,11 @@ class Spookcat : BaseUnityPlugin
         ScareEverything.Apply();    // Makes everything scared of Spookcat, which I think was part of the original intention of changing the Slugcat's template?
         IL.MiniFly.ViableForBuzzaround += IL_MiniFly_ViableForBuzzaround;
         On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
-        On.HUD.FoodMeter.UpdateShowCount += FoodMeter_UpdateShowCount;
         IL.Room.Loaded += IL_Room_Loaded;
         IL.WormGrass.WormGrassPatch.Update += IL_WormGrass_WormGrassPatch_Update;
         On.Menu.MenuScene.Update += Menu_MenuScene_Update;
         On.Menu.MenuScene.ctor += Menu_MenuScene_ctor;
+        IL.HUD.FoodMeter.UpdateShowCount += IL_FoodMeter_UpdateShowCount;
     }
     static void Menu_MenuScene_ctor(On.Menu.MenuScene.orig_ctor orig, MenuScene self, Menu.Menu menu, MenuObject owner, MenuScene.SceneID sceneID) {
         orig(self, menu, owner, sceneID);
@@ -93,41 +93,22 @@ class Spookcat : BaseUnityPlugin
     static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref Texture2D texture) {
         orig(self, (self.game?.session is StoryGameSession session && session.saveStateNumber == SpookyName)? 56 : pal, ref texture);
     }
-    // Also needs to be converted into an IL Hook
-    static void FoodMeter_UpdateShowCount(On.HUD.FoodMeter.orig_UpdateShowCount orig, FoodMeter self) {
-        if (self.showCount < self.hud.owner.CurrentFood)
-        {
-            if (self.showCountDelay != 0)
-            {
-                self.showCountDelay--;
-                return;
-            }
-            self.showCountDelay = 10;
-            if (self.showCount >= 0 && self.showCount < self.circles.Count && !self.circles[self.showCount].foodPlopped)
-            {
-                self.circles[self.showCount].FoodPlop();
-            }
-            self.showCount++;
-            if (self.quarterPipShower != null)
-            {
-                self.quarterPipShower.Reset();
-                return;
-            }
+    static void IL_FoodMeter_UpdateShowCount(ILContext il) {
+        var cursor = new ILCursor(il);
+        if (!cursor.TryGotoNext(MoveType.After, i => i.MatchLdcI4(40), i => i.MatchStfld(out _))) {
+            Logger.LogDebug("Spookcat: Failed to match Food IL");
+            return;
         }
-        else if (self.showCount > self.hud.owner.CurrentFood)
-        {
-            if (self.eatCircleDelay == 0)
-            {
-                self.eatCircleDelay = 20;   // This is what was changed, from 40 -> 20. Might just be a 1.5 -> 1.9 game thing really.
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate((FoodMeter self) => {
+            try {
+                if (self.hud.rainWorld.processManager.currentMainLoop is RainWorldGame game && game.session is StoryGameSession session && session.saveStateNumber == SpookyName) {
+                    self.eatCircleDelay = 20;
+                }
+            } catch (Exception err) {
+                Logger.LogDebug($"Spookcat Exception!:\n{err}");
             }
-            self.eatCircleDelay--;
-            if (self.eatCircleDelay < 1)
-            {
-                self.circles[self.showCount - 1].EatFade();
-                self.showCount--;
-                self.eatCircleDelay = 0;
-            }
-        }
+        });
     }
     static void IL_Room_Loaded(ILContext il) {
         var cursor = new ILCursor(il);

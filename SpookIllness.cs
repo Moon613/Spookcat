@@ -48,8 +48,8 @@ public class SpookIllness
 				fit = 0f;
 			}
 		}
-		// Change here, uses curedTemporal instead of curedForTheCycle
-		else if (!curedTemporal && 0.5 < (double)(1f / (60f + Mathf.Lerp(0.1f, 0.001f, Severity) * (float)counter)))
+		// Change here, always runs instead of using curedForTheCycle
+		else if (0.5 < (double)(1f / (60f + Mathf.Lerp(0.1f, 0.001f, Severity) * (float)counter)))
 		{
 			fitSeverity = Custom.SCurve(Mathf.Pow(Random.value, Mathf.Lerp(3.4f, 0.4f, Severity)), 0.7f);
 			fitLength = Mathf.Lerp(80f, 240f, Mathf.Pow(Random.value, Mathf.Lerp(1.6f, 0.4f, (fitSeverity + Severity) / 2f)));
@@ -81,7 +81,6 @@ public class SpookIllness
 	public Player player;
 	// public bool init;
 	public int counter;
-	private bool curedTemporal;
 	public SpookIllnessEffect? effect;
 	public float fit;
 	public float fitLength;

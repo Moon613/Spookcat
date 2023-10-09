@@ -23,6 +23,7 @@ namespace Spookcat;
 [BepInPlugin("moon.spookcat", "Spookcat", "1.0.0")]
 class Spookcat : BaseUnityPlugin
 {
+    static bool init;
     [AllowNull] new internal static ManualLogSource Logger;
     public static ConditionalWeakTable<Player, SpookcatEx> SpookyCWT = new ConditionalWeakTable<Player, SpookcatEx>();
     public static ConditionalWeakTable<MenuScene, MenuSceneEx> MenuCWT = new ConditionalWeakTable<MenuScene, MenuSceneEx>();
@@ -42,6 +43,7 @@ class Spookcat : BaseUnityPlugin
         IL.WormGrass.WormGrassPatch.Update += IL_WormGrass_WormGrassPatch_Update;
         On.Menu.MenuScene.Update += Menu_MenuScene_Update;
         On.Menu.MenuScene.ctor += Menu_MenuScene_ctor;
+        On.RainWorld.OnModsInit += RainWorld_OnModsInit;
         IL.HUD.FoodMeter.UpdateShowCount += IL_FoodMeter_UpdateShowCount;
     }
     static void Menu_MenuScene_ctor(On.Menu.MenuScene.orig_ctor orig, MenuScene self, Menu.Menu menu, MenuObject owner, MenuScene.SceneID sceneID) {
@@ -61,11 +63,11 @@ class Spookcat : BaseUnityPlugin
         if (self.menu is SlugcatSelectMenu menu) {
             int index = self.depthIllustrations.FindIndex(i => i.fileName.Contains("bkg5"));
             if (index < 0) { return; }
-            float green = Mathf.Max(-0.1f,  1f - (2 * Mathf.Abs( Mathf.Sin( 2f * Mathf.PI * Mathf.Cos( ( menuEx.timer + 4 * Mathf.Sin(1.25f * menuEx.timer)) / 128f)) )));
+            float green = SpookyOptions.FlashingSelectScreen.Value? Mathf.Max(-0.1f,  1f - (2 * Mathf.Abs( Mathf.Sin( 2f * Mathf.PI * Mathf.Cos( ( menuEx.timer + 4 * Mathf.Sin(1.25f * menuEx.timer)) / 128f)) ))) : 1f;
             self.depthIllustrations[index].sprite.color = new Color(0f, green, 0f, 1f);
             if (green >= 0.99f && menuEx.soundCooldown <= 0 && menu.slugcatPages.FindIndex(page => page.slugcatNumber == SpookyName) == menu.slugcatPageIndex) {
                 self.menu.PlaySound(SoundID.Thunder_Close, 0f, 0.7f, 0.7f);
-                menuEx.soundCooldown = 40;
+                menuEx.soundCooldown = SpookyOptions.FlashingSelectScreen.Value? 40 : 600;
             }
         }
     }
@@ -180,6 +182,13 @@ class Spookcat : BaseUnityPlugin
             return;
         }
         cursor.MarkLabel(label);
+    }
+    static void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self) {
+        orig(self);
+        if (!init) {
+            MachineConnector.SetRegisteredOI("moon.spookcat", new SpookyOptions());
+            init = true;
+        }
     }
 }
 class MenuSceneEx

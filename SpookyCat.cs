@@ -33,7 +33,7 @@ class SpookyCat
                 }
                 if (!self.dead)
                 {
-                    room.PlaySound(SoundID.Rock_Hit_Creature, self.mainBodyChunk.pos);
+                    room.PlaySound(SoundID.UI_Slugcat_Die, self.mainBodyChunk.pos);
                 }
             }
             if (spookcatEx.hurtLevel >= 1f || (self.bodyChunks[0].pos.y < -self.bodyChunks[0].restrictInRoomRange + 1f && ((!self.Template.canFly && !self.room.water) || self.dead || !self.Template.canSwim || !self.room.water)))

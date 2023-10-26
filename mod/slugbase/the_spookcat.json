@@ -10,7 +10,7 @@
 		],
 		"select_menu_scene": "spookslug",
 		"sleep_scene": "spooksleep",
-		"start_room": ["LF_B01"],
+		"start_room": ["LF_SPOOK"],
 		"diet": {
 			"base": "Red",
 		},

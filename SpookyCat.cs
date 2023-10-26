@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RWCustom;
@@ -7,6 +8,7 @@ using Debug = UnityEngine.Debug;
 namespace Spookcat;
 class SpookyCat
 {
+    static ConditionalWeakTable<RainWorldGame, StrongBox<bool>> StartGame = new ConditionalWeakTable<RainWorldGame, StrongBox<bool>>();
     internal static void Apply() {
         On.Player.Die += Player_Die;
         On.Player.ctor += Player_ctor;
@@ -16,6 +18,11 @@ class SpookyCat
         IL.Player.Stun += IL_Player_Stun;
         IL.Creature.LoseAllGrasps += IL_Creature_LoseAllGrasps;
         On.Player.Update += Player_Update;
+        On.RainWorldGame.ctor += RainWorldGame_ctor;
+    }
+    static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager) {
+        orig(self, manager);
+        StartGame.Add(self, new StrongBox<bool>(false));
     }
     static void Player_Die(On.Player.orig_Die orig, Player self) {
         if (SpookyCWT.TryGetValue(self, out SpookcatEx spookcatEx)) {
@@ -157,5 +164,9 @@ class SpookyCat
             }
         }
         orig(self, eu);
+        if (self.room != null && self.room.game.session is StoryGameSession && self.room.game.rainWorld.progression?.currentSaveState.saveStateNumber == SpookyName && self.room.game.rainWorld.progression.currentSaveState.cycleNumber == 0 && StartGame.TryGetValue(self.room.game, out StrongBox<bool> firstTime) && !firstTime.Value) {
+            self.SuperHardSetPosition(self.room.MiddleOfTile(21, 7));
+            firstTime.Value = true;
+        }
     }
 }

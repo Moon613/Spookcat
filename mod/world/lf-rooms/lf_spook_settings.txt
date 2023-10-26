@@ -1,0 +1,13 @@
+DangerType: Rain
+WaveSpeed: 0.5061035
+WaveLength: 0.9969482
+WaveAmplitude: 0.03554166
+SecondWaveLength: 0.1666667
+SecondWaveAmplitude: 0
+Palette: 14
+EffectColorA: 6
+EffectColorB: 18
+Effects: Flies-1-20-20, RockFlea-0.3813405-20.03958-75.51111, TinyDragonFly-0.3117414-274.7417-22.88889, 
+PlacedObjects: LightSource><1070.158><133.7485><0.4896061~Environment~-263.2396~65.86667~-200.4333~123.5803~1~0~None~0~0, LightSource><1833.047><195.7585><0.6674685~Environment~-283.8718~286.3111~50~86.60254~1~0~None~0~0, 
+AmbientSounds: OMNI><AM_RAIN-Rumbles.ogg><0><0><0.4><0.9, OMNI><SO_WAT-RainishDrips.ogg><0><0><0.4><0.9, OMNI><AM_ENV-NatWind.ogg><0><0><0.4><0.9, 
+FadePalette: 11, 0.28613, 0.1005322, 0.09279898

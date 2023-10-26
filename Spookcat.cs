@@ -109,6 +109,7 @@ class Spookcat : BaseUnityPlugin
                 }
             } catch (Exception err) {
                 Logger.LogDebug($"Spookcat Exception!:\n{err}");
+                Debug.Log(err);
             }
         });
     }
@@ -127,7 +128,7 @@ class Spookcat : BaseUnityPlugin
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate((Room self) => {
                 if (self.game.session is StoryGameSession session && session.saveStateNumber == SpookyName) {
-                    if (self.lightning == null)
+                    if (self.lightning == null && SpookyOptions.FlashingSelectScreen.Value)
                     {
                         self.lightning = new Lightning(self, 1f, true);
                         self.AddObject(self.lightning);

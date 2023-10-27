@@ -25,7 +25,17 @@ class SpookyCat
         StartGame.Add(self, new StrongBox<bool>(false));
     }
     static void Player_Die(On.Player.orig_Die orig, Player self) {
-        if (SpookyCWT.TryGetValue(self, out SpookcatEx spookcatEx)) {
+        bool carriedByLizor = false;
+        foreach (AbstractCreature crit in self.abstractCreature.Room.creatures) {
+            if (crit.realizedCreature is Lizard || crit.realizedCreature is DropBug) {
+                foreach (var stuck in crit.stuckObjects) {
+                    if (((stuck.A is AbstractCreature aCrit && aCrit == self.abstractCreature) || (stuck.B is AbstractCreature bCrit && bCrit == self.abstractCreature)) && crit.InDen) {
+                        carriedByLizor = true;
+                    }
+                }
+            }
+        }
+        if (SpookyCWT.TryGetValue(self, out SpookcatEx spookcatEx) && !carriedByLizor) {
             spookcatEx.GetHurt(self);
             Room room = self.room;
             if (room == null)

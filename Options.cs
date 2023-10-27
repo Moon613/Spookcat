@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Spookcat;
 public class SpookyOptions : OptionInterface {
-    [AllowNull] public static Configurable<bool> FlashingSelectScreen { get; set; }
+    [AllowNull] public static Configurable<bool> FlashingLights { get; set; }
 
     public SpookyOptions() {
-        FlashingSelectScreen = config.Bind("flashingSelectScreen", true);
+        FlashingLights = config.Bind("flashingSelectScreen", true);
     }
 
     public override void Initialize() {
@@ -19,8 +19,8 @@ public class SpookyOptions : OptionInterface {
 
         UIelement[]? UIArrPlayerOptions = new UIelement[]
         {
-            new OpLabel(100f, 525f, Translate("Select Screen Effects"), false),
-            new OpCheckBox(FlashingSelectScreen, new Vector2(400f, 520f)) {description = Translate("Select Screen Effects")}
+            new OpLabel(100f, 525f, Translate("Flashing Lights"), false),
+            new OpCheckBox(FlashingLights, new Vector2(400f, 520f)) {description = Translate("Select Screen Effects")}
         };
         newTab.AddItems(UIArrPlayerOptions);
     }

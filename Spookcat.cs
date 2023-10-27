@@ -63,11 +63,11 @@ class Spookcat : BaseUnityPlugin
         if (self.menu is SlugcatSelectMenu menu) {
             int index = self.depthIllustrations.FindIndex(i => i.fileName.Contains("bkg5"));
             if (index < 0) { return; }
-            float green = SpookyOptions.FlashingSelectScreen.Value? Mathf.Max(-0.1f,  1f - (2 * Mathf.Abs( Mathf.Sin( 2f * Mathf.PI * Mathf.Cos( ( menuEx.timer + 4 * Mathf.Sin(1.25f * menuEx.timer)) / 128f)) ))) : 1f;
+            float green = SpookyOptions.FlashingLights.Value? Mathf.Max(-0.1f,  1f - (2 * Mathf.Abs( Mathf.Sin( 2f * Mathf.PI * Mathf.Cos( ( menuEx.timer + 4 * Mathf.Sin(1.25f * menuEx.timer)) / 128f)) ))) : 1f;
             self.depthIllustrations[index].sprite.color = new Color(0f, green, 0f, 1f);
             if (green >= 0.99f && menuEx.soundCooldown <= 0 && menu.slugcatPages.FindIndex(page => page.slugcatNumber == SpookyName) == menu.slugcatPageIndex) {
                 self.menu.PlaySound(SoundID.Thunder_Close, 0f, 0.7f, 0.7f);
-                menuEx.soundCooldown = SpookyOptions.FlashingSelectScreen.Value? 40 : 600;
+                menuEx.soundCooldown = SpookyOptions.FlashingLights.Value? 40 : 600;
             }
         }
     }
@@ -128,7 +128,7 @@ class Spookcat : BaseUnityPlugin
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate((Room self) => {
                 if (self.game.session is StoryGameSession session && session.saveStateNumber == SpookyName) {
-                    if (self.lightning == null && SpookyOptions.FlashingSelectScreen.Value)
+                    if (self.lightning == null && SpookyOptions.FlashingLights.Value)
                     {
                         self.lightning = new Lightning(self, 1f, true);
                         self.AddObject(self.lightning);

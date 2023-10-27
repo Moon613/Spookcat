@@ -175,6 +175,12 @@ class SpookyCat
             {
                 spookcatEx.spookIllness.Update();
             }
+            if (self.dangerGraspTime > 0)
+            {
+                self.stun = 0;
+                if (self.input[0].thrw) { self.ThrowToGetFree(eu); }
+                if (self.input[0].pckp) { self.DangerGraspPickup(eu); }
+            }
         }
         orig(self, eu);
         if (self.room != null && self.room.game.session is StoryGameSession && self.room.game.rainWorld.progression?.currentSaveState.saveStateNumber == SpookyName && self.room.game.rainWorld.progression.currentSaveState.cycleNumber == 0 && StartGame.TryGetValue(self.room.game, out StrongBox<bool> firstTime) && !firstTime.Value) {

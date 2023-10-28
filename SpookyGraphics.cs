@@ -43,7 +43,7 @@ class SpookyGraphics
         orig(self, sLeaser, rCam, palette);
         if (SpookyCWT.TryGetValue(self.player, out var spookcatEx)) {
             sLeaser.sprites[2].color = new Color(0f, 0f, 0f);
-            sLeaser.sprites[13].color = Color.Lerp(new Color(1f, 0.05f, 0.04f), palette.blackColor, (0.1f + 0.8f * palette.darkness) * 0.4f);
+            sLeaser.sprites[spookcatEx.graphics.ragSpriteIndex].color = Color.Lerp(new Color(1f, 0.05f, 0.04f), palette.blackColor, (0.1f + 0.8f * palette.darkness) * 0.4f);
             Color a = Custom.HSL2RGB(0.249f, 0.5f, 0.45f);
             sLeaser.sprites[9].color = Color.Lerp(a, palette.blackColor, (0.1f + 0.8f * palette.darkness) * 0.4f);
         }
@@ -61,10 +61,10 @@ class SpookyGraphics
                 Vector2 normalized = (a - vector).normalized;
                 Vector2 a2 = Custom.PerpendicularVector(normalized);
                 float d = Vector2.Distance(a, vector) / 5f;
-                (sLeaser.sprites[13] as TriangleMesh)?.MoveVertice(i * 4, a - normalized * d - a2 * (num2 + num) * 0.5f - camPos);
-                (sLeaser.sprites[13] as TriangleMesh)?.MoveVertice(i * 4 + 1, a - normalized * d + a2 * (num2 + num) * 0.5f - camPos);
-                (sLeaser.sprites[13] as TriangleMesh)?.MoveVertice(i * 4 + 2, vector + normalized * d - a2 * num2 - camPos);
-                (sLeaser.sprites[13] as TriangleMesh)?.MoveVertice(i * 4 + 3, vector + normalized * d + a2 * num2 - camPos);
+                (sLeaser.sprites[spookcatEx.graphics.ragSpriteIndex] as TriangleMesh)?.MoveVertice(i * 4, a - normalized * d - a2 * (num2 + num) * 0.5f - camPos);
+                (sLeaser.sprites[spookcatEx.graphics.ragSpriteIndex] as TriangleMesh)?.MoveVertice(i * 4 + 1, a - normalized * d + a2 * (num2 + num) * 0.5f - camPos);
+                (sLeaser.sprites[spookcatEx.graphics.ragSpriteIndex] as TriangleMesh)?.MoveVertice(i * 4 + 2, vector + normalized * d - a2 * num2 - camPos);
+                (sLeaser.sprites[spookcatEx.graphics.ragSpriteIndex] as TriangleMesh)?.MoveVertice(i * 4 + 3, vector + normalized * d + a2 * num2 - camPos);
                 a = vector;
                 num = num2;
             }

@@ -20,7 +20,7 @@ using Menu;
 
 namespace Spookcat;
 
-[BepInPlugin("moon.spookcat", "Spookcat", "1.0.0")]
+[BepInPlugin("moon.spookcat", "Spookcat", "1.0.1")]
 class Plugin : BaseUnityPlugin
 {
     static bool init;

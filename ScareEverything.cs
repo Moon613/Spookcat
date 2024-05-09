@@ -4,7 +4,7 @@ public class ScareEverything {
     public static float intensity = 0.5f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all
     ///<summary>This function makes setting the condition under which creatures will change their relation easier</summary>
     public static bool Condition(Creature? crit, ArtificialIntelligence self) {
-        if (self.creature.personality.aggression < 0.75f && self.creature.personality.energy < 0.95f && self.creature.personality.bravery < 0.8f && self.creature.personality.dominance < 0.98f && crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
+        if (self.creature.personality.aggression < 0.55f && self.creature.personality.energy < 0.9f && self.creature.personality.bravery < 0.6f && self.creature.personality.dominance < 0.91f && crit != null && crit.Template.type == CreatureTemplate.Type.Slugcat && crit is Player player && player.slugcatStats.name == SpookyName) {
             return true;
         }
         else {
@@ -50,7 +50,7 @@ public class ScareEverything {
 
         On.BigNeedleWormAI.IUseARelationshipTracker_UpdateDynamicRelationship += (orig, self, dRelation) => {
             Creature? trackedCreature = dRelation?.trackerRep?.representedCreature?.realizedCreature;
-            if (Condition(trackedCreature, self)) {
+            if (Condition(trackedCreature, self) && !(dRelation?.state is NeedleWormAI.NeedleWormTrackState state && state.holdingChild)) {
                 return new CreatureTemplate.Relationship(newRelation, intensity);
             }
             return orig(self, dRelation);

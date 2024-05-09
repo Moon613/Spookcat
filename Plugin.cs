@@ -21,7 +21,7 @@ using Menu;
 namespace Spookcat;
 
 [BepInPlugin("moon.spookcat", "Spookcat", "1.0.0")]
-class Spookcat : BaseUnityPlugin
+class Plugin : BaseUnityPlugin
 {
     static bool init;
     [AllowNull] new internal static ManualLogSource Logger;
@@ -29,7 +29,7 @@ class Spookcat : BaseUnityPlugin
     public static ConditionalWeakTable<MenuScene, MenuSceneEx> MenuCWT = new ConditionalWeakTable<MenuScene, MenuSceneEx>();
     public static SlugcatStats.Name SpookyName = new SlugcatStats.Name("spooky");
     static readonly MenuScene.SceneID MENUSCENENAME = new("spookslug");
-    public Spookcat() {
+    public Plugin() {
         Logger = base.Logger;
     }
     public void OnEnable()

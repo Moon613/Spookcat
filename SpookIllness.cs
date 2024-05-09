@@ -97,7 +97,7 @@ public class SpookIllness
 		public float Intensity()
 		{
             // Might potentially Error, if this causes problems then look here.
-            Spookcat.SpookyCWT.TryGetValue(illness.player, out SpookcatEx spookcatEx);
+            Plugin.SpookyCWT.TryGetValue(illness.player, out SpookcatEx spookcatEx);
 			return Mathf.Lerp(0f, 0.65f, Mathf.SmoothStep(0f, 1f, spookcatEx.hurtLevel));
 		}
 		// Completely changed from original, but might be a game update thing.

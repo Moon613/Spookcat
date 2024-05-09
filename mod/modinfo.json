@@ -1,10 +1,11 @@
 {
   "id": "moon.spookcat",
   "name": "Spookcat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "authors": "Original Authors: Garrakx, Cappin\nPorting: Moon",
   "description": "A Zombified slugcat that transforms the world into a dark and haunting nightmarescape.\nTurns your food meter into a health bar.",
 	"requirements": ["slime-cubed.slugbase", "moreslugcats", "bro.mergefix"],
 	"requirements_names": ["Slugbase", "More Slugcats", "Merge Fix"],
+  "tags": ["Custom Slugcat", "Game Mechanics"],
   "checksum_override_version": true
 }

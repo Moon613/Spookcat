@@ -1,4 +1,4 @@
-using static Spookcat.Spookcat;
+using static Spookcat.Plugin;
 public class ScareEverything {
     public static CreatureTemplate.Relationship.Type newRelation = CreatureTemplate.Relationship.Type.Afraid;   // there are a few different relationship values you can use here
     public static float intensity = 0.5f;     // this will be clamped to a 0-1 range, 1 influencing decision-making the most and 0 not at all

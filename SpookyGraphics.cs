@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using RWCustom;
 using Random = UnityEngine.Random;
-using static Spookcat.Spookcat;
+using static Spookcat.Plugin;
 
 namespace Spookcat;
 class SpookyGraphics

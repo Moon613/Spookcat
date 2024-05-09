@@ -2,13 +2,12 @@ using System.Runtime.CompilerServices;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RWCustom;
-using static Spookcat.Spookcat;
-using Debug = UnityEngine.Debug;
+using static Spookcat.Plugin;
 
 namespace Spookcat;
 class SpookyCat
 {
-    static ConditionalWeakTable<RainWorldGame, StrongBox<bool>> StartGame = new ConditionalWeakTable<RainWorldGame, StrongBox<bool>>();
+    static readonly ConditionalWeakTable<RainWorldGame, StrongBox<bool>> StartGame = new ConditionalWeakTable<RainWorldGame, StrongBox<bool>>();
     internal static void Apply() {
         On.Player.Die += Player_Die;
         On.Player.ctor += Player_ctor;
